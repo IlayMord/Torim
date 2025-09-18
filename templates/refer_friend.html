@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}TORIM - הזמן חבר{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2 class="section-title">שתף את TORIM עם חברים</h2>
+    <div class="referral-card">
+        <p>הקוד האישי שלך:</p>
+        <div class="referral-code" id="referral-code">{{ user.referral_code }}</div>
+        <div class="referral-actions">
+            <button class="btn-primary" type="button" onclick="copyReferralCode('{{ user.referral_code }}')">העתק קוד</button>
+            <button class="btn-secondary" type="button" onclick="shareReferralCode('{{ user.referral_code }}')">שתף</button>
+        </div>
+        <p class="muted-text">כבר צירפת {{ user.referred_friends }} חברים ל-TORIM 🎉</p>
+    </div>
+
+    <div class="referral-benefits">
+        <h3>למה כדאי לשתף?</h3>
+        <ul class="referral-list">
+            <li>אתה מקבל קרדיט להזמנה הבאה על כל חבר שנרשם</li>
+            <li>החברים שלך מקבלים 10% הנחה על התור הראשון</li>
+            <li>מעקב מלא אחר כל ההפניות במקום אחד</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

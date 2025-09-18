@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}TORIM - ניהול עסק{% endblock %}
+
+{% block content %}
+{% set status_labels = {
+    'confirmed': 'מאושר',
+    'pending': 'ממתין'
+} %}
+
+<div class="section">
+    <h2 class="section-title">ניהול {{ dashboard.business_info.name }}</h2>
+    <div class="business-management">
+        <div class="business-info-card">
+            <div class="business-info-header">
+                <h3>{{ dashboard.business_info.name }}</h3>
+                <span class="business-owner">מנוהל על ידי {{ dashboard.business_info.owner }}</span>
+            </div>
+            <div class="business-info-grid">
+                <span><i data-lucide="phone"></i>{{ dashboard.business_info.phone }}</span>
+                <span><i data-lucide="map-pin"></i>{{ dashboard.business_info.address }}</span>
+                <span><i data-lucide="calendar"></i>{{ dashboard.business_info.hours }}</span>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">תורים היום</span>
+                <span class="stat-value">{{ dashboard.stats.today_appointments }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">הכנסות שבועיות</span>
+                <span class="stat-value">₪{{ dashboard.stats.weekly_revenue }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">תורים החודש</span>
+                <span class="stat-value">{{ dashboard.stats.monthly_appointments }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">דירוג ממוצע</span>
+                <span class="stat-value">{{ '%.1f'|format(dashboard.stats.avg_rating) }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">לקוחות חדשים</span>
+                <span class="stat-value">{{ dashboard.stats.new_customers }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">חוזרים</span>
+                <span class="stat-value">{{ dashboard.stats.returning_customers }}</span>
+            </div>
+        </div>
+
+        <div class="schedule-card">
+            <h3>לוח זמנים להיום</h3>
+            <div class="schedule-list">
+                {% for item in dashboard.today_schedule %}
+                <div class="schedule-item">
+                    <div class="schedule-time">{{ item.time }}</div>
+                    <div class="schedule-details">
+                        <div class="schedule-name">{{ item.customer_name }}</div>
+                        <div class="schedule-service">{{ item.service }}</div>
+                    </div>
+                    <span class="status-badge status-{{ item.status }}">{{ status_labels.get(item.status, item.status) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
