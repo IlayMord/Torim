@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}TORIM - אזור אישי{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<div class="profile-header">
+    <div class="profile-info">
+        <img src="{{ user.avatar }}" alt="{{ user.name }}" class="profile-avatar">
+        <div class="profile-details">
+            <h2 class="profile-name">{{ user.name }}</h2>
+            <p class="profile-email">{{ user.email }}</p>
+            <div class="reliability-score">
+                רמת אמינות: <span>{{ user.reliability }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Menu -->
+<div class="profile-menu">
+    <a href="/my-appointments" class="menu-item">
+        <div class="menu-icon">
+            <i data-lucide="calendar"></i>
+        </div>
+        <div class="menu-content">
+            <span class="menu-title">התורים שלי</span>
+            <span class="menu-badge">{{ appointments_count }}</span>
+        </div>
+        <i data-lucide="chevron-left" class="menu-arrow"></i>
+    </a>
+
+    <a href="/appointment-history" class="menu-item">
+        <div class="menu-icon">
+            <i data-lucide="clock"></i>
+        </div>
+        <div class="menu-content">
+            <span class="menu-title">היסטוריית תורים</span>
+        </div>
+        <i data-lucide="chevron-left" class="menu-arrow"></i>
+    </a>
+
+    <a href="/refer-friend" class="menu-item">
+        <div class="menu-icon">
+            <i data-lucide="users"></i>
+        </div>
+        <div class="menu-content">
+            <span class="menu-title">הזמן חבר</span>
+        </div>
+        <i data-lucide="chevron-left" class="menu-arrow"></i>
+    </a>
+
+    <a href="/ai-chat" class="menu-item">
+        <div class="menu-icon">
+            <i data-lucide="message-circle"></i>
+        </div>
+        <div class="menu-content">
+            <span class="menu-title">צ'אט AI</span>
+        </div>
+        <i data-lucide="chevron-left" class="menu-arrow"></i>
+    </a>
+
+    <a href="/account-settings" class="menu-item">
+        <div class="menu-icon">
+            <i data-lucide="user"></i>
+        </div>
+        <div class="menu-content">
+            <span class="menu-title">החשבון שלי</span>
+        </div>
+        <i data-lucide="chevron-left" class="menu-arrow"></i>
+    </a>
+
+    {% if user.is_business_owner %}
+    <a href="/business-management" class="menu-item">
+        <div class="menu-icon">
+            <i data-lucide="briefcase"></i>
+        </div>
+        <div class="menu-content">
+            <span class="menu-title">בעל עסק</span>
+        </div>
+        <i data-lucide="chevron-left" class="menu-arrow"></i>
+    </a>
+    {% endif %}
+
+    <div class="menu-item" onclick="showToast('הגדרות - בפיתוח', 'info')">
+        <div class="menu-icon">
+            <i data-lucide="settings"></i>
+        </div>
+        <div class="menu-content">
+            <span class="menu-title">הגדרות</span>
+        </div>
+        <i data-lucide="chevron-left" class="menu-arrow"></i>
+    </div>
+
+    <div class="menu-item" onclick="showToast('עזרה - בפיתוח', 'info')">
+        <div class="menu-icon">
+            <i data-lucide="help-circle"></i>
+        </div>
+        <div class="menu-content">
+            <span class="menu-title">עזרה ותמיכה</span>
+        </div>
+        <i data-lucide="chevron-left" class="menu-arrow"></i>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}
