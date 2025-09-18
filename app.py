@@ -1,29 +1,30 @@
 # TORIM - Flask Application Main File
 # אפליקציית TORIM בפייתון - קובץ ראשי
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from datetime import datetime, timedelta
-import json
 import os
+
+from database import UserDatabase
 
 app = Flask(__name__)
 app.secret_key = 'torim_secret_key_2025'
 
-# נתונים בזיכרון (במקום מסד נתונים)
+
+@app.context_processor
+def inject_datetime_helpers():
+    """Expose datetime utilities to all templates."""
+    return {
+        'datetime': datetime,
+        'timedelta': timedelta
+    }
+
+# נתוני הדגמה (משתמשים נשמרים במסד נתונים מאובטח)
 class TorimData:
-    def __init__(self):
-        self.current_user = {
-            'id': 1,
-            'name': 'יוסי לוי',
-            'email': 'yossi@example.com',
-            'phone': '050-1234567',
-            'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-            'reliability': 95,
-            'referral_code': 'YOSSI2025',
-            'referred_friends': 3,
-            'is_business_owner': True,
-            'business_id': 1
-        }
+    def __init__(self, user_db: UserDatabase):
+        self.db = user_db
+        self.current_user = self._load_current_user()
+        self.current_user_id = self.current_user['id']
         
         self.categories = [
             {'id': 'hair', 'name': 'מספרות', 'icon': 'scissors', 'count': 23},
@@ -184,12 +185,12 @@ class TorimData:
                 'time': '10:45'
             }
         ]
-        
+
         self.business_dashboard = {
             'business_info': {
-                'id': 1,
+                'id': self.current_user.get('business_id') or 1,
                 'name': 'מספרת הדר',
-                'owner': 'יוסי לוי',
+                'owner': self.current_user['name'],
                 'phone': '03-1234567',
                 'address': 'רחוב הרצל 45, תל אביב',
                 'hours': 'ב-ו: 8:00-20:00'
@@ -230,8 +231,44 @@ class TorimData:
             ]
         }
 
-# יצירת מופע הנתונים
-data = TorimData()
+    def _load_current_user(self):
+        """Load the active user from the database, seeding defaults when needed."""
+        user = self.db.get_user_by_email('yossi@example.com')
+        if user:
+            return user
+
+        # Fallback seeding if the database was cleared after initialisation
+        return self.db.create_user(
+            name='יוסי לוי',
+            email='yossi@example.com',
+            phone='050-1234567',
+            avatar='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+            reliability=95,
+            referral_code='YOSSI2025',
+            referred_friends=3,
+            is_business_owner=True,
+            business_id=1,
+            password='ChangeMe!2025'
+        )
+
+    def refresh_current_user(self):
+        """Refresh current user data from the database before each request."""
+        if not getattr(self, 'current_user_id', None):
+            return
+
+        user = self.db.get_user_by_id(self.current_user_id)
+        if user:
+            self.current_user = user
+
+# יצירת מופע הנתונים והמסד
+user_database = UserDatabase()
+data = TorimData(user_database)
+
+
+@app.before_request
+def load_user_from_db():
+    """Ensure the user information is always loaded from the database."""
+    data.refresh_current_user()
 
 # Routes (נתיבים)
 
@@ -257,6 +294,7 @@ def businesses():
                          user=data.current_user,
                          businesses=filtered_businesses,
                          categories=data.categories,
+                         selected_category=category,
                          appointments_count=len(data.appointments))
 
 @app.route('/search')
@@ -340,11 +378,17 @@ def business_management():
 def api_book_appointment():
     """API להזמנת תור"""
     try:
-        request_data = request.get_json()
+        request_data = request.get_json(silent=True)
+        if not isinstance(request_data, dict):
+            return jsonify({'success': False, 'message': 'בקשה לא תקינה'}), 400
+
         business_id = request_data.get('business_id')
         service_id = request_data.get('service_id')
         date = request_data.get('date')
         time = request_data.get('time')
+
+        if business_id is None or service_id is None or not date or not time:
+            return jsonify({'success': False, 'message': 'חסרים פרטים להזמנה'}), 400
         
         # מציאת העסק והשירות
         business = next((b for b in data.businesses if b['id'] == business_id), None)
@@ -387,8 +431,13 @@ def api_book_appointment():
 def api_cancel_appointment():
     """API לביטול תור"""
     try:
-        request_data = request.get_json()
+        request_data = request.get_json(silent=True)
+        if not isinstance(request_data, dict):
+            return jsonify({'success': False, 'message': 'בקשה לא תקינה'}), 400
+
         appointment_id = request_data.get('appointment_id')
+        if appointment_id is None:
+            return jsonify({'success': False, 'message': 'חסרים פרטי תור'}), 400
         
         # מציאת התור
         appointment_index = None
@@ -415,9 +464,14 @@ def api_cancel_appointment():
 def api_chat():
     """API לצ'אט AI"""
     try:
-        request_data = request.get_json()
-        message = request_data.get('message', '')
-        
+        request_data = request.get_json(silent=True)
+        if not isinstance(request_data, dict):
+            return jsonify({'success': False, 'message': 'בקשה לא תקינה'}), 400
+
+        message = (request_data.get('message') or '').strip()
+        if not message:
+            return jsonify({'success': False, 'message': 'נא להזין הודעה'}), 400
+
         # הוספת הודעת המשתמש
         user_message = {
             'id': len(data.chat_messages) + 1,

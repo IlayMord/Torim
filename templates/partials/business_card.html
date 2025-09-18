@@ -1,0 +1,33 @@
+<div class="business-card">
+    <div class="business-image">
+        <img src="{{ business.image }}" alt="{{ business.name }}">
+        <div class="business-status {{ 'open' if business.is_open else 'closed' }}">
+            {{ 'פתוח עכשיו' if business.is_open else 'סגור כרגע' }}
+        </div>
+    </div>
+    <div class="business-content">
+        <div class="business-header">
+            <div class="business-name">{{ business.name }}</div>
+            <div class="business-rating">
+                <i data-lucide="star" class="star-icon"></i>
+                <span>{{ '%.1f'|format(business.rating) }}</span>
+                <span>({{ business.review_count }})</span>
+            </div>
+        </div>
+        <div class="business-info">
+            <span><i data-lucide="map-pin"></i>{{ business.distance }}</span>
+            <span><i data-lucide="clock"></i>{{ business.wait_time }}</span>
+        </div>
+        <div class="business-address">
+            <i data-lucide="navigation"></i>
+            <span>{{ business.address }}</span>
+        </div>
+        <div class="business-description">{{ business.description }}</div>
+        <div class="business-actions">
+            <button class="btn-book" type="button" onclick="openBookingModalForBusiness({{ business.id }})">קבע תור</button>
+            <a class="btn-call" href="tel:{{ business.phone }}" aria-label="התקשר ל{{ business.name }}">
+                <i data-lucide="phone"></i>
+            </a>
+        </div>
+    </div>
+</div>

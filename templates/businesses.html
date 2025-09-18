@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}TORIM - עסקים{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2 class="section-title">עסקים מובילים באזור שלך</h2>
+    {% if categories %}
+    <div class="categories-grid">
+        {% for category in categories %}
+        {% set is_selected = (selected_category == category.id) %}
+        <div class="category-card{% if is_selected %} active{% endif %}" onclick="location.href='{{ url_for('businesses', category=category.id) }}'">
+            <div class="category-icon">
+                <i data-lucide="{{ category.icon }}"></i>
+            </div>
+            <div class="category-name">{{ category.name }}</div>
+            <div class="category-count">{{ category.count }} עסקים</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if selected_category %}
+    {% set selected = categories | selectattr('id', 'equalto', selected_category) | list | first %}
+    <p class="muted-text">מציג עסקים בקטגוריית "{{ selected.name if selected else selected_category }}"</p>
+    {% endif %}
+</div>
+
+<div class="section">
+    {% if businesses %}
+    <div class="business-list">
+        {% for business in businesses %}
+        {% include 'partials/business_card.html' %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>לא נמצאו עסקים תואמים לחיפוש שלך.</p>
+        <button class="btn-secondary" type="button" onclick="location.href='{{ url_for('businesses') }}'">הצג את כל העסקים</button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
