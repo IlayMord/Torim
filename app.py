@@ -5,6 +5,8 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from datetime import datetime, timedelta
 import os
 
+from database import UserDatabase
+
 app = Flask(__name__)
 app.secret_key = 'torim_secret_key_2025'
 
@@ -17,21 +19,14 @@ def inject_datetime_helpers():
         'timedelta': timedelta
     }
 
-# נתונים בזיכרון (במקום מסד נתונים)
+ codex/fix-errors-and-correct-code-f6tn0t
+# נתוני הדגמה (משתמשים נשמרים במסד נתונים מאובטח)
+
 class TorimData:
-    def __init__(self):
-        self.current_user = {
-            'id': 1,
-            'name': 'יוסי לוי',
-            'email': 'yossi@example.com',
-            'phone': '050-1234567',
-            'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-            'reliability': 95,
-            'referral_code': 'YOSSI2025',
-            'referred_friends': 3,
-            'is_business_owner': True,
-            'business_id': 1
-        }
+    def __init__(self, user_db: UserDatabase):
+        self.db = user_db
+        self.current_user = self._load_current_user()
+        self.current_user_id = self.current_user['id']
         
         self.categories = [
             {'id': 'hair', 'name': 'מספרות', 'icon': 'scissors', 'count': 23},
@@ -192,12 +187,12 @@ class TorimData:
                 'time': '10:45'
             }
         ]
-        
+
         self.business_dashboard = {
             'business_info': {
-                'id': 1,
+                'id': self.current_user.get('business_id') or 1,
                 'name': 'מספרת הדר',
-                'owner': 'יוסי לוי',
+                'owner': self.current_user['name'],
                 'phone': '03-1234567',
                 'address': 'רחוב הרצל 45, תל אביב',
                 'hours': 'ב-ו: 8:00-20:00'
@@ -238,8 +233,44 @@ class TorimData:
             ]
         }
 
-# יצירת מופע הנתונים
-data = TorimData()
+    def _load_current_user(self):
+        """Load the active user from the database, seeding defaults when needed."""
+        user = self.db.get_user_by_email('yossi@example.com')
+        if user:
+            return user
+
+        # Fallback seeding if the database was cleared after initialisation
+        return self.db.create_user(
+            name='יוסי לוי',
+            email='yossi@example.com',
+            phone='050-1234567',
+            avatar='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+            reliability=95,
+            referral_code='YOSSI2025',
+            referred_friends=3,
+            is_business_owner=True,
+            business_id=1,
+            password='ChangeMe!2025'
+        )
+
+    def refresh_current_user(self):
+        """Refresh current user data from the database before each request."""
+        if not getattr(self, 'current_user_id', None):
+            return
+
+        user = self.db.get_user_by_id(self.current_user_id)
+        if user:
+            self.current_user = user
+
+# יצירת מופע הנתונים והמסד
+user_database = UserDatabase()
+data = TorimData(user_database)
+
+
+@app.before_request
+def load_user_from_db():
+    """Ensure the user information is always loaded from the database."""
+    data.refresh_current_user()
 
 # Routes (נתיבים)
 
