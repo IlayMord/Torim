@@ -19,7 +19,9 @@ def inject_datetime_helpers():
         'timedelta': timedelta
     }
 
+ codex/fix-errors-and-correct-code-f6tn0t
 # נתוני הדגמה (משתמשים נשמרים במסד נתונים מאובטח)
+
 class TorimData:
     def __init__(self, user_db: UserDatabase):
         self.db = user_db

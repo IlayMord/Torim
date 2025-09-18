@@ -89,7 +89,9 @@
 
         loadBookingServices(business.services || []);
         showBookingStep(1);
+codex/fix-errors-and-correct-code-f6tn0t
         attachTimeSlotListeners();
+
     }
 
     function loadBookingServices(services) {
@@ -466,11 +468,13 @@
                 return;
             }
 
+
             slot.addEventListener('click', () => {
                 document.querySelectorAll('.time-slot').forEach((item) => item.classList.remove('selected'));
                 slot.classList.add('selected');
                 bookingState.selectedTime = slot.textContent;
             });
+ codex/fix-errors-and-correct-code-f6tn0t
 
             slot.dataset.bound = 'true';
         });
