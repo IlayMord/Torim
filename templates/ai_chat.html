@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}TORIM - צ'אט AI{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2 class="section-title">שוחח עם עדן, העוזרת של TORIM</h2>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+            {% for message in messages %}
+            <div class="chat-message {{ message.type }}">
+                <div class="message-content">
+                    <p>{{ message.text }}</p>
+                    <span class="message-time">{{ message.time }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <form class="chat-input" id="chat-form">
+            <input type="text" id="chat-message" name="message" placeholder="כתוב הודעה..." autocomplete="off" required>
+            <button class="btn-primary" type="submit">שלח</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

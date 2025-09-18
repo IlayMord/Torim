@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}TORIM - הגדרות חשבון{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2 class="section-title">הגדרות החשבון שלך</h2>
+    <div class="settings-card">
+        <div class="settings-section">
+            <h3>פרטי משתמש</h3>
+            <div class="settings-item">
+                <div>
+                    <div class="settings-label">שם מלא</div>
+                    <div class="settings-description">כך יופיע שמך לנותני השירות</div>
+                </div>
+                <div class="setting-value">{{ user.name }}</div>
+            </div>
+            <div class="settings-item">
+                <div>
+                    <div class="settings-label">אימייל</div>
+                    <div class="settings-description">נשתמש בו לשליחת אישורים והודעות</div>
+                </div>
+                <div class="setting-value">{{ user.email }}</div>
+            </div>
+            <div class="settings-item">
+                <div>
+                    <div class="settings-label">טלפון</div>
+                    <div class="settings-description">מספר לקבלת עדכונים ותזכורות</div>
+                </div>
+                <div class="setting-value">{{ user.phone }}</div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>התראות</h3>
+            <div class="settings-item">
+                <div>
+                    <div class="settings-label">התראות תורים</div>
+                    <div class="settings-description">קבל תזכורות על תורים קרובים</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="settings-item">
+                <div>
+                    <div class="settings-label">מבצעים והטבות</div>
+                    <div class="settings-description">קבל מבצעים חמים מהעסקים האהובים עליך</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>אבטחה</h3>
+            <div class="settings-item">
+                <div>
+                    <div class="settings-label">סיסמה</div>
+                    <div class="settings-description">עודכן לאחרונה לפני חודשיים</div>
+                </div>
+                <button class="btn-secondary" type="button" onclick="showToast('החלפת סיסמה - בקרוב', 'info')">שנה סיסמה</button>
+            </div>
+            <div class="settings-item">
+                <div>
+                    <div class="settings-label">כניסה מהירה</div>
+                    <div class="settings-description">התחברות מהירה עם קוד חד פעמי</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

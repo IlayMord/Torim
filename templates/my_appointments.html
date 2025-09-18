@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}TORIM - התורים שלי{% endblock %}
+
+{% block content %}
+{% set status_labels = {
+    'confirmed': 'מאושר',
+    'pending': 'ממתין',
+    'cancelled': 'בוטל'
+} %}
+
+<div class="section">
+    <h2 class="section-title">התורים הקרובים שלך</h2>
+    {% if appointments %}
+    <div class="appointments-list">
+        {% for appointment in appointments %}
+        <div class="appointment-card">
+            <div class="appointment-header">
+                <div class="appointment-image">
+                    <img src="{{ appointment.business_image }}" alt="{{ appointment.business_name }}">
+                </div>
+                <div class="appointment-details">
+                    <div class="appointment-business">{{ appointment.business_name }}</div>
+                    <div class="appointment-service">{{ appointment.service_name }}</div>
+                    <div class="appointment-meta">
+                        <span><i data-lucide="calendar"></i>{{ appointment.date }}</span>
+                        <span><i data-lucide="clock"></i>{{ appointment.time }}</span>
+                        <span class="status-badge status-{{ appointment.status }}">
+                            {{ status_labels.get(appointment.status, appointment.status) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="appointment-body">
+                <div class="appointment-info">
+                    <span><i data-lucide="map-pin"></i>{{ appointment.address }}</span>
+                    <span><i data-lucide="phone"></i>{{ appointment.phone }}</span>
+                    <span><i data-lucide="credit-card"></i>₪{{ appointment.price }}</span>
+                </div>
+                <div class="appointment-actions">
+                    <button class="btn-secondary" type="button" onclick="openBookingModalForBusiness({{ appointment.business_id }})">קבע מחדש</button>
+                    {% if appointment.can_cancel %}
+                    <button class="btn-danger" type="button" onclick="cancelAppointment({{ appointment.id }})">בטל תור</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>אין לך תורים עתידיים כרגע.</p>
+        <button class="btn-primary" type="button" onclick="location.href='{{ url_for('businesses') }}'">מצא עסק לקביעת תור</button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

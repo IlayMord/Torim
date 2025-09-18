@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}TORIM - היסטוריית תורים{% endblock %}
+
+{% block content %}
+{% set status_labels = {
+    'completed': 'הושלם',
+    'cancelled': 'בוטל'
+} %}
+
+<div class="section">
+    <h2 class="section-title">היסטוריית התורים שלך</h2>
+    {% if history %}
+    <div class="history-list">
+        {% for item in history %}
+        <div class="history-card">
+            <div class="history-header">
+                <div class="history-icon">
+                    <i data-lucide="check-circle"></i>
+                </div>
+                <div class="history-details">
+                    <div class="history-business">{{ item.business_name }}</div>
+                    <div class="history-service">{{ item.service_name }}</div>
+                </div>
+                <span class="status-badge status-{{ item.status }}">
+                    {{ status_labels.get(item.status, item.status) }}
+                </span>
+            </div>
+            <div class="history-meta">
+                <span><i data-lucide="calendar"></i>{{ item.date }}</span>
+                <span><i data-lucide="clock"></i>{{ item.time }}</span>
+                <span><i data-lucide="star"></i>{{ item.rating }}</span>
+            </div>
+            {% if item.review %}
+            <p class="history-review">"{{ item.review }}"</p>
+            {% endif %}
+            <div class="history-footer">
+                <span class="history-price">₪{{ item.price }}</span>
+                <button class="btn-secondary" type="button" onclick="openBookingModalForBusiness({{ item.business_id }})">קבע שוב</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>טרם השלמת תורים במערכת.</p>
+        <button class="btn-primary" type="button" onclick="location.href='{{ url_for('businesses') }}'">קבע את התור הראשון שלך</button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

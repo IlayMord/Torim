@@ -1,13 +1,21 @@
 # TORIM - Flask Application Main File
 # אפליקציית TORIM בפייתון - קובץ ראשי
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from datetime import datetime, timedelta
-import json
 import os
 
 app = Flask(__name__)
 app.secret_key = 'torim_secret_key_2025'
+
+
+@app.context_processor
+def inject_datetime_helpers():
+    """Expose datetime utilities to all templates."""
+    return {
+        'datetime': datetime,
+        'timedelta': timedelta
+    }
 
 # נתונים בזיכרון (במקום מסד נתונים)
 class TorimData:
@@ -257,6 +265,7 @@ def businesses():
                          user=data.current_user,
                          businesses=filtered_businesses,
                          categories=data.categories,
+                         selected_category=category,
                          appointments_count=len(data.appointments))
 
 @app.route('/search')
@@ -340,11 +349,17 @@ def business_management():
 def api_book_appointment():
     """API להזמנת תור"""
     try:
-        request_data = request.get_json()
+        request_data = request.get_json(silent=True)
+        if not isinstance(request_data, dict):
+            return jsonify({'success': False, 'message': 'בקשה לא תקינה'}), 400
+
         business_id = request_data.get('business_id')
         service_id = request_data.get('service_id')
         date = request_data.get('date')
         time = request_data.get('time')
+
+        if business_id is None or service_id is None or not date or not time:
+            return jsonify({'success': False, 'message': 'חסרים פרטים להזמנה'}), 400
         
         # מציאת העסק והשירות
         business = next((b for b in data.businesses if b['id'] == business_id), None)
@@ -387,8 +402,13 @@ def api_book_appointment():
 def api_cancel_appointment():
     """API לביטול תור"""
     try:
-        request_data = request.get_json()
+        request_data = request.get_json(silent=True)
+        if not isinstance(request_data, dict):
+            return jsonify({'success': False, 'message': 'בקשה לא תקינה'}), 400
+
         appointment_id = request_data.get('appointment_id')
+        if appointment_id is None:
+            return jsonify({'success': False, 'message': 'חסרים פרטי תור'}), 400
         
         # מציאת התור
         appointment_index = None
@@ -415,9 +435,14 @@ def api_cancel_appointment():
 def api_chat():
     """API לצ'אט AI"""
     try:
-        request_data = request.get_json()
-        message = request_data.get('message', '')
-        
+        request_data = request.get_json(silent=True)
+        if not isinstance(request_data, dict):
+            return jsonify({'success': False, 'message': 'בקשה לא תקינה'}), 400
+
+        message = (request_data.get('message') or '').strip()
+        if not message:
+            return jsonify({'success': False, 'message': 'נא להזין הודעה'}), 400
+
         # הוספת הודעת המשתמש
         user_message = {
             'id': len(data.chat_messages) + 1,

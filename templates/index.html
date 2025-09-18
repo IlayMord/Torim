@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}TORIM - המלצות אישיות{% endblock %}
+
+{% block content %}
+<!-- Search Section -->
+<div class="search-section">
+    <div class="search-box">
+        <i data-lucide="search" class="search-icon"></i>
+        <input type="text" id="search-input" placeholder="חפש עסקים, שירותים..." onkeyup="handleSearchInput(this.value)">
+    </div>
+</div>
+
+<!-- Categories -->
+<div class="section">
+    <h2 class="section-title">קטגוריות</h2>
+    <div class="categories-grid">
+        {% for category in categories %}
+        <div class="category-card" onclick="location.href='/businesses?category={{ category.id }}'">
+            <div class="category-icon">
+                <i data-lucide="{{ category.icon }}"></i>
+            </div>
+            <div class="category-name">{{ category.name }}</div>
+            <div class="category-count">{{ category.count }} עסקים</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Personalized Recommendations -->
+<div class="section">
+    <h2 class="section-title">מומלץ בשבילך</h2>
+    <div class="recommendations-list">
+        {% for rec in recommendations %}
+        <div class="recommendation-card priority-{{ rec.priority }}" onclick="openBookingModalForBusiness({{ rec.business_id }})">
+            <div class="recommendation-image">
+                <img src="{{ rec.business_image }}" alt="{{ rec.business_name }}">
+            </div>
+            <div class="recommendation-content">
+                <div class="recommendation-title">{{ rec.title }}</div>
+                <div class="recommendation-description">{{ rec.description }}</div>
+                <div class="recommendation-meta">
+                    <div class="recommendation-business">{{ rec.business_name }}</div>
+                    <div class="recommendation-reason">{{ rec.reason }}</div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
